@@ -15,13 +15,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuiz, onExploreClick, onSelect
 
   return (
     <section className="relative overflow-hidden bg-[#FAF7F2] pt-10 pb-14 md:pt-14 md:pb-20 border-b border-[#E8DFD3]">
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
           {/* Main Copy */}
           <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-            
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#1C1510] leading-[1.15] tracking-tight">
               Curation for the <br />
               <span className="italic font-normal text-[#C86D43]">Connoisseur’s</span> Cup.
@@ -68,13 +65,11 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuiz, onExploreClick, onSelect
                 <span className="text-xs text-[#8C8074]">Caffeine Range</span>
               </div>
             </div>
-
           </div>
 
           {/* Hero Visual Card (Clickable) */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
-              
               <div 
                 onClick={() => onSelectBeverage && onSelectBeverage(featuredItem)}
                 className="bg-[#FFFFFF] border border-[#E8DFD3] rounded-3xl p-5 shadow-xl card-hover cursor-pointer group"
@@ -84,6 +79,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuiz, onExploreClick, onSelect
                     src={featuredItem.imageUrl}
                     alt={featuredItem.name} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
                   <div className="absolute top-3 left-3 bg-[#191410]/90 backdrop-blur-md text-[#FAF7F2] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                     Featured Origin
@@ -93,7 +89,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuiz, onExploreClick, onSelect
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs text-[#8C8074]">
                     <span>Single Origin Espresso</span>
-                    <span className="font-mono text-[#C86D43] font-bold">64mg Caffeine</span>
+                    <span className="font-mono text-[#C86D43] font-bold">{featuredItem.caffeineMgPerServing}mg Caffeine</span>
                   </div>
                   <h3 className="text-xl font-serif font-bold text-[#1C1510] group-hover:text-[#C86D43] transition-colors flex items-center justify-between">
                     <span>{featuredItem.name}</span>
@@ -110,10 +106,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuiz, onExploreClick, onSelect
                   <span className="px-2.5 py-0.5 rounded-md bg-[#FAF6F0] text-[11px] text-[#5C5248]">🫐 Blueberry</span>
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
     </section>

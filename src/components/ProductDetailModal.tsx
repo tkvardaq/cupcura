@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShopProduct } from '../data/affiliateProducts';
 import { X, Star, ExternalLink, ShieldCheck, Check, ThumbsUp, ThumbsDown, Sliders, Wrench, Award } from 'lucide-react';
+import { useAccessibleModal } from '../hooks/useAccessibleModal';
 
 interface ProductDetailModalProps {
   product: ShopProduct | null;
@@ -8,6 +9,9 @@ interface ProductDetailModalProps {
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClose }) => {
+  const isModalOpen = Boolean(product);
+  const { modalRef } = useAccessibleModal(isModalOpen, onClose);
+
   if (!product) return null;
 
   // Rating scores out of 100 for bar chart visualization
@@ -20,9 +24,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#191410]/75 backdrop-blur-md overflow-y-auto animate-fadeIn">
-      <div className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl modal-animate relative my-auto">
-        
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#191410]/75 backdrop-blur-md overflow-y-auto animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div 
+        ref={modalRef}
+        className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl modal-animate relative my-auto"
+      >
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[#191410] text-[#FAF7F2] px-6 py-4 flex items-center justify-between border-b border-[#3D3228]">
           <div className="flex items-center gap-3">
@@ -36,6 +49,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
           <button
             onClick={onClose}
             className="p-1.5 rounded-full hover:bg-[#251E18] text-[#8C8074] hover:text-white transition-colors"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -43,10 +57,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
 
         {/* Content Body */}
         <div className="p-6 sm:p-8 space-y-8">
-          
           {/* Top Hero Section */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            
             <div className="md:col-span-6 aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-[#E8DFD3] relative">
               <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
               {product.badge && (
@@ -88,7 +100,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
                 </a>
               </div>
             </div>
-
           </div>
 
           {/* Barista Lab Rating Breakdown Bar Chart */}
@@ -181,9 +192,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product,
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
-
         </div>
-
       </div>
     </div>
   );

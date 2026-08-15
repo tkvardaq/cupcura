@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Beverage, BEVERAGES_DATA } from '../data/beverages';
 import { FlavorRadarChart } from './FlavorRadarChart';
-import { SlidersHorizontal, Plus, X, ArrowRight, Zap, ShieldAlert, Thermometer } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export const ComparisonTool: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([
@@ -28,7 +28,6 @@ export const ComparisonTool: React.FC = () => {
   return (
     <section id="comparison" className="py-12 bg-[#FAF7F2] border-t border-[#E8DFD3]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E8DFD3] pb-6">
           <div>
@@ -92,52 +91,54 @@ export const ComparisonTool: React.FC = () => {
         </div>
 
         {/* Overlaid Radar Chart Comparison */}
-        <div className="bg-[#FFFFFF] border border-[#E8DFD3] rounded-3xl p-6 sm:p-8 space-y-6">
-          <h3 className="text-xl font-serif font-bold text-[#1C1510] text-center sm:text-left">
-            Flavor Profile Overlaid Radar Comparison
-          </h3>
+        {selectedBeverages.length > 0 && (
+          <div className="bg-[#FFFFFF] border border-[#E8DFD3] rounded-3xl p-6 sm:p-8 space-y-6">
+            <h3 className="text-xl font-serif font-bold text-[#1C1510] text-center sm:text-left">
+              Flavor Profile Overlaid Radar Comparison
+            </h3>
 
-          <div className="flex flex-col md:flex-row items-center justify-around gap-8">
-            <FlavorRadarChart
-              profile={selectedBeverages[0].flavorProfile}
-              secondaryProfile={selectedBeverages[1]?.flavorProfile}
-              primaryName={selectedBeverages[0].name}
-              secondaryName={selectedBeverages[1]?.name}
-              size={320}
-            />
-
-            {/* Side-by-side metric table */}
-            <div className="w-full md:w-1/2 space-y-3">
-              {['sweetness', 'acidity', 'bitterness', 'body', 'aroma'].map((metric) => (
-                <div key={metric} className="space-y-1">
-                  <div className="flex justify-between text-xs font-bold text-[#1C1510] capitalize">
-                    <span>{metric}</span>
-                    <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-around gap-8">
+              <FlavorRadarChart
+                profile={selectedBeverages[0].flavorProfile}
+                secondaryProfile={selectedBeverages[1]?.flavorProfile}
+                primaryName={selectedBeverages[0].name}
+                secondaryName={selectedBeverages[1]?.name}
+                size={320}
+              />
+              
+              {/* Side-by-side metric table */}
+              <div className="w-full md:w-1/2 space-y-3">
+                {(['sweetness', 'acidity', 'bitterness', 'body', 'aroma'] as const).map((metric) => (
+                  <div key={metric} className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-[#1C1510] capitalize">
+                      <span>{metric}</span>
+                      <div className="flex gap-4">
+                        {selectedBeverages.map((bev, idx) => (
+                          <span key={bev.id} className={idx === 0 ? 'text-[#C86D43]' : 'text-[#2D5A46]'}>
+                            {bev.flavorProfile[metric]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="w-full bg-[#FAF6F0] h-2 rounded-full overflow-hidden flex">
                       {selectedBeverages.map((bev, idx) => (
-                        <span key={bev.id} className={idx === 0 ? 'text-[#C86D43]' : 'text-[#2D5A46]'}>
-                          {bev.flavorProfile[metric as keyof typeof bev.flavorProfile]}
-                        </span>
+                        <div
+                          key={bev.id}
+                          style={{
+                            width: `${bev.flavorProfile[metric]}%`,
+                            backgroundColor: idx === 0 ? '#C86D43' : idx === 1 ? '#2D5A46' : '#D4A359',
+                            opacity: 0.8
+                          }}
+                          className="h-full"
+                        />
                       ))}
                     </div>
                   </div>
-                  <div className="w-full bg-[#FAF6F0] h-2 rounded-full overflow-hidden flex">
-                    {selectedBeverages.map((bev, idx) => (
-                      <div
-                        key={bev.id}
-                        style={{
-                          width: `${(bev.flavorProfile[metric as keyof typeof bev.flavorProfile] / 100) * 100}%`,
-                          backgroundColor: idx === 0 ? '#C86D43' : '#2D5A46',
-                          opacity: 0.8
-                        }}
-                        className="h-full"
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Side-by-side Comparison Matrix Table */}
         <div className="bg-[#FFFFFF] border border-[#E8DFD3] rounded-3xl overflow-hidden shadow-sm">
@@ -154,7 +155,6 @@ export const ComparisonTool: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-xs text-[#5C5248] divide-y divide-[#E8DFD3]">
-                
                 {/* Caffeine Row */}
                 <tr>
                   <td className="p-4 font-bold text-[#1C1510] bg-[#FAF6F0]">Caffeine Content</td>
@@ -210,12 +210,10 @@ export const ComparisonTool: React.FC = () => {
                     </td>
                   ))}
                 </tr>
-
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     </section>
   );

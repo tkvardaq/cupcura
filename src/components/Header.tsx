@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Coffee, Search, Compass, SlidersHorizontal, ShoppingBag, Sparkles, Clock, Heart, Menu, X, Layers } from 'lucide-react';
 
 interface HeaderProps {
@@ -17,6 +17,28 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQuiz
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Read URL search parameter on initial load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryFromUrl = urlParams.get('q');
+    if (queryFromUrl && queryFromUrl !== searchQuery) {
+      setSearchQuery(queryFromUrl);
+    }
+  }, []);
+
+  // Update URL search parameter when search query changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (searchQuery.trim()) {
+      urlParams.set('q', searchQuery.trim());
+    } else {
+      urlParams.delete('q');
+    }
+    const queryString = urlParams.toString();
+    const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`;
+    window.history.replaceState(null, '', newUrl);
+  }, [searchQuery]);
 
   const navItems = [
     { id: 'catalog', label: 'Beverage Catalog', icon: Compass },
@@ -37,7 +59,6 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E8DFD3] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          
           {/* Brand Logo */}
           <div 
             className="flex items-center gap-3 cursor-pointer group"
@@ -71,6 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   onClick={() => setSearchQuery('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8C8074] hover:text-[#1C1510]"
+                  aria-label="Clear search"
                 >
                   ✕
                 </button>
@@ -118,7 +140,6 @@ export const Header: React.FC<HeaderProps> = ({
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-
         </div>
       </div>
 

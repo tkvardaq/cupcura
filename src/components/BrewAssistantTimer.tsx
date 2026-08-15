@@ -29,17 +29,47 @@ export const BrewAssistantTimer: React.FC = () => {
   const totalDoseGrams = baseDoseGrams * servings;
   const totalWaterMl = baseWaterMl * servings;
 
+  // Play pleasant double chime using Web Audio API
+  const playCompletionChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      const playTone = (freq: number, start: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.2, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration);
+      };
+      
+      playTone(523.25, ctx.currentTime, 0.3); // C5
+      playTone(659.25, ctx.currentTime + 0.15, 0.5); // E5
+    } catch {
+      // Audio playback silently ignored if context not allowed
+    }
+  };
+
   // Countdown timer
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (isActive && timerSeconds > 0) {
       interval = setInterval(() => {
         setTimerSeconds((prev) => prev - 1);
       }, 1000);
-    } else if (timerSeconds === 0) {
+    } else if (isActive && timerSeconds === 0) {
       setIsActive(false);
+      playCompletionChime();
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActive, timerSeconds]);
 
   const formatTime = (totalSec: number) => {

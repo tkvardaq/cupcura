@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Beverage } from '../data/beverages';
 import { FlavorRadarChart } from './FlavorRadarChart';
-import { X, ShieldAlert, Heart, Thermometer, Scale, Clock, ExternalLink, Sparkles, ShoppingBag } from 'lucide-react';
+import { X, ShieldAlert, Heart, Thermometer, Scale, Clock, ExternalLink, Sparkles, ShoppingBag, Share2, Check } from 'lucide-react';
+import { useAccessibleModal } from '../hooks/useAccessibleModal';
 
 interface BeverageModalProps {
   beverage: Beverage | null;
@@ -9,12 +10,34 @@ interface BeverageModalProps {
 }
 
 export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose }) => {
+  const isModalOpen = Boolean(beverage);
+  const { modalRef } = useAccessibleModal(isModalOpen, onClose);
+  const [copied, setCopied] = useState(false);
+
   if (!beverage) return null;
 
+  const handleShare = () => {
+    const slug = beverage.id;
+    const url = `${window.location.origin}${window.location.pathname}#page/beverage-${slug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#191410]/75 backdrop-blur-md overflow-y-auto animate-fadeIn">
-      <div className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl modal-animate relative my-auto">
-        
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#191410]/75 backdrop-blur-md overflow-y-auto animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div 
+        ref={modalRef}
+        className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl modal-animate relative my-auto"
+      >
         {/* Modal Header */}
         <div className="sticky top-0 z-20 bg-[#191410] text-[#FAF7F2] px-6 py-4 flex items-center justify-between border-b border-[#3D3228]">
           <div className="flex items-center gap-3">
@@ -26,20 +49,30 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
             </h2>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-[#251E18] text-[#8C8074] hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="px-3 py-1.5 rounded-full bg-[#251E18] text-[#D4A359] hover:bg-[#3D3228] transition-colors text-xs font-semibold flex items-center gap-1.5"
+              title="Share Recipe Link"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-[#2D5A46]" /> : <Share2 className="w-3.5 h-3.5" />}
+              <span>{copied ? 'Copied!' : 'Share'}</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-[#251E18] text-[#8C8074] hover:text-white transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Modal Main Content */}
         <div className="p-6 sm:p-8 space-y-8">
-
           {/* Hero Section */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            
             <div className="md:col-span-6 aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-[#E8DFD3] relative">
               <img
                 src={beverage.imageUrl}
@@ -85,7 +118,6 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Flavor Profile Radar Chart */}
@@ -126,7 +158,6 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
 
           {/* Health Benefits & Cautions */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
             {/* Health Benefits */}
             <div className="md:col-span-6 bg-[#E8F2EC] border border-[#2D5A46]/30 rounded-3xl p-6 space-y-4">
               <div className="flex items-center gap-2 text-[#2D5A46]">
@@ -163,7 +194,6 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Brewing Ratios */}
@@ -247,9 +277,7 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
               </div>
             </div>
           )}
-
         </div>
-
       </div>
     </div>
   );

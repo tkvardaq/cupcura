@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { BrewQuiz } from './components/BrewQuiz';
@@ -25,22 +25,33 @@ export function App() {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [quizOpen, setQuizOpen] = useState<boolean>(false);
-  
+
   // Modals
   const [selectedBeverage, setSelectedBeverage] = useState<Beverage | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
   const [legalType, setLegalType] = useState<'ftc' | 'privacy' | 'terms' | 'contact' | null>(null);
 
-  // Hash change listener for URL #page/[slug]
+  // Hash change listener for URL #page/[slug] - FIXED to not conflict with natural anchors
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash.startsWith('#page/')) {
-        const slug = hash.replace('#page/', '');
-        setActiveSlug(slug);
-      } else {
+      
+      // Only intercept our specific pattern for beverage pages, preserve natural anchors
+      if (hash.startsWith('#page/') && !hash.includes('#page/#')) {
+        const slug = hash.substring(6); // Remove '#page/'
+        // Only set if slug exists to prevent 404s from breaking UI
+        if (slug && getBeverageMasterBySlug(slug)) {
+          setActiveSlug(slug);
+          setActiveTab('catalog'); // Ensure we're in catalog tab when viewing page
+        } else if (slug) {
+          // Invalid slug - show 404-like behavior but stay in current view
+          setActiveSlug(null);
+        }
+      } else if (hash === '' || hash === '#') {
+        // Clear hash when on home or tabs
         setActiveSlug(null);
       }
+      // Let natural anchor links (like #health-benefits) work normally
     };
 
     handleHashChange();
@@ -74,27 +85,32 @@ export function App() {
     }
   }, [activeTab, activeSlug, selectedBeverage, selectedProduct]);
 
-  const handleSelectPage = (slug: string) => {
+  const handleSelectPage = useCallback((slug: string) => {
     window.location.hash = `#page/${slug}`;
     setActiveSlug(slug);
+    setActiveTab('catalog'); // Ensure we're in catalog tab when viewing page
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const handleBackToDirectory = () => {
+  const handleBackToDirectory = useCallback(() => {
     window.location.hash = '';
     setActiveSlug(null);
-  };
+  }, []);
 
-  const handleTabChange = (tab: string) => {
-    window.location.hash = '';
-    setActiveSlug(null);
+  const handleTabChange = useCallback((tab: string) => {
+    // Only clear hash if we're not viewing a specific page
+    if (!activeSlug) {
+      window.location.hash = '';
+    }
     setActiveTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    // Preserve scroll position when switching tabs within same view
+    if (!activeSlug) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [activeTab, activeSlug]);
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#1C1510] flex flex-col font-sans selection:bg-[#C86D43]/20 selection:text-[#C86D43]">
-      
       {/* Header Navigation */}
       <Header
         activeTab={activeTab}
@@ -106,7 +122,6 @@ export function App() {
 
       {/* Main Content Area */}
       <main className="flex-1">
-        
         {/* If viewing a single page out of 100 */}
         {activeSlug ? (
           <PageView
@@ -184,7 +199,6 @@ export function App() {
             )}
           </>
         )}
-
       </main>
 
       {/* Footer */}
@@ -220,7 +234,6 @@ export function App() {
         type={legalType}
         onClose={() => setLegalType(null)}
       />
-
     </div>
   );
 }

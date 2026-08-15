@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, ShieldCheck, FileText, Mail, Lock, CheckCircle2 } from 'lucide-react';
+import { useAccessibleModal } from '../hooks/useAccessibleModal';
 
 interface LegalModalProps {
   isOpen: boolean;
@@ -8,10 +9,13 @@ interface LegalModalProps {
 }
 
 export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, type, onClose }) => {
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
-  const [sent, setSent] = useState(false);
+  const [contactName, setContactName] = React.useState('');
+  const [contactEmail, setContactEmail] = React.useState('');
+  const [contactMessage, setContactMessage] = React.useState('');
+  const [sent, setSent] = React.useState(false);
+
+  const isModalOpen = Boolean(isOpen && type);
+  const { modalRef } = useAccessibleModal(isModalOpen, onClose);
 
   if (!isOpen || !type) return null;
 
@@ -28,9 +32,18 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, type, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#191410]/75 backdrop-blur-md animate-fadeIn">
-      <div className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl modal-animate relative">
-        
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#191410]/75 backdrop-blur-md animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div 
+        ref={modalRef}
+        className="bg-[#FAF7F2] border border-[#E8DFD3] rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl modal-animate relative"
+      >
         {/* Header */}
         <div className="bg-[#191410] text-[#FAF7F2] p-5 flex items-center justify-between border-b border-[#3D3228]">
           <div className="flex items-center gap-2.5">
@@ -49,7 +62,6 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, type, onClose })
 
         {/* Content */}
         <div className="p-6 md:p-8 space-y-4 text-xs text-[#5C5248] leading-relaxed">
-          
           {type === 'ftc' && (
             <div className="space-y-4">
               <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#E8DFD3] space-y-2">
@@ -152,9 +164,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ isOpen, type, onClose })
               )}
             </div>
           )}
-
         </div>
-
       </div>
     </div>
   );

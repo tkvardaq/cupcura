@@ -32,16 +32,16 @@ export function parseMarkdownToHTML(markdown: string): string {
     // Headings
     if (line.startsWith('# ')) {
       if (inList) { html += listType === 'ul' ? '</ul>' : '</ol>'; inList = false; listType = null; }
-      html += `<h1 className="text-3xl font-serif font-bold text-[#1C1510] mt-6 mb-3">${line.replace('# ', '')}</h1>`;
+      html += `<h1 class="text-3xl font-serif font-bold text-[#1C1510] mt-6 mb-3">${line.replace('# ', '')}</h1>`;
     } else if (line.startsWith('## ')) {
       if (inList) { html += listType === 'ul' ? '</ul>' : '</ol>'; inList = false; listType = null; }
-      html += `<h2 className="text-2xl font-serif font-bold text-[#1C1510] mt-6 mb-2 border-b border-[#E8DFD3] pb-2">${line.replace('## ', '')}</h2>`;
+      html += `<h2 class="text-2xl font-serif font-bold text-[#1C1510] mt-6 mb-2 border-b border-[#E8DFD3] pb-2">${line.replace('## ', '')}</h2>`;
     } else if (line.startsWith('### ')) {
       if (inList) { html += listType === 'ul' ? '</ul>' : '</ol>'; inList = false; listType = null; }
-      html += `<h3 className="text-xl font-serif font-bold text-[#1C1510] mt-4 mb-2">${line.replace('### ', '')}</h3>`;
+      html += `<h3 class="text-xl font-serif font-bold text-[#1C1510] mt-4 mb-2">${line.replace('### ', '')}</h3>`;
     } else if (line.startsWith('#### ')) {
       if (inList) { html += listType === 'ul' ? '</ul>' : '</ol>'; inList = false; listType = null; }
-      html += `<h4 className="text-lg font-serif font-bold text-[#C86D43] mt-3 mb-1.5">${line.replace('#### ', '')}</h4>`;
+      html += `<h4 class="text-lg font-serif font-bold text-[#C86D43] mt-3 mb-1.5">${line.replace('#### ', '')}</h4>`;
     } 
     // Unordered list items (- or *)
     else if (line.startsWith('- ') || line.startsWith('* ')) {
