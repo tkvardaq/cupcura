@@ -1,3 +1,5 @@
+import { FEATURED_AFFILIATE_PRODUCTS } from './affiliateProducts';
+
 export interface FlavorProfile {
   sweetness: number; // 0-100
   acidity: number;   // 0-100
@@ -59,7 +61,7 @@ export interface Beverage {
   seoDescription: string;
 }
 
-export const BEVERAGES_DATA: Beverage[] = [
+const RAW_BEVERAGES_DATA: Beverage[] = [
   {
     id: 'espresso-single-origin',
     name: 'Single-Origin Ethiopian Espresso',
@@ -2657,6 +2659,69 @@ export const BEVERAGES_DATA: Beverage[] = [
     seoDescription: 'Learn to brew a perfect London Fog latte: Earl Grey concentration, milk frothing ratios, vanilla bean pairing, and history.'
   }
 ];
+
+export const BEVERAGES_DATA: Beverage[] = RAW_BEVERAGES_DATA.map((bev) => {
+  if (bev.affiliateProducts && bev.affiliateProducts.length > 0) {
+    return bev;
+  }
+  
+  const matches: any[] = [];
+  
+  if (bev.id.includes('mate') || bev.id.includes('kava')) {
+    const mateSet = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-argentine-mate-gourd-set');
+    if (mateSet) matches.push(mateSet);
+  }
+  
+  if (bev.category === 'coffee') {
+    const grinder = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-comandante-c40') || FEATURED_AFFILIATE_PRODUCTS.find(p => p.category === 'grinders');
+    const machine = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-gaggia-classic-pro') || FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-flair-58');
+    const beans = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-geisha-panama-beans') || FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-jamaica-blue-mountain');
+    if (grinder) matches.push(grinder);
+    if (machine) matches.push(machine);
+    if (beans) matches.push(beans);
+  } else if (bev.category === 'green_tea') {
+    const whisk = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-chasen-bamboo-whisk-set');
+    const kyusu = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-tokoname-kyusu');
+    const leaves = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-uji-gyokuro-premium') || FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-matcha-ceremonial-tin');
+    if (whisk && bev.id.includes('matcha')) matches.push(whisk);
+    if (kyusu) matches.push(kyusu);
+    if (leaves) matches.push(leaves);
+  } else if (bev.category === 'black_tea') {
+    const kettle = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-fellow-stagg-ekg');
+    const teapot = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-yixing-clay-pot');
+    const leaves = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-darjeeling-margarets-hope');
+    if (kettle) matches.push(kettle);
+    if (teapot) matches.push(teapot);
+    if (leaves) matches.push(leaves);
+  } else {
+    const kettle = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-fellow-stagg-ekg');
+    const pot = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-grosche-moka-pot') || FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === 'prod-hario-v60-ceramic-set');
+    if (kettle) matches.push(kettle);
+    if (pot) matches.push(pot);
+  }
+
+  if (matches.length === 0) {
+    matches.push(FEATURED_AFFILIATE_PRODUCTS[0]);
+  }
+
+  const mappedProducts = matches.map(p => ({
+    id: p.id,
+    title: p.name,
+    type: (p.category === 'artisan_beans_leaves' ? 'beans_or_leaves' : 
+          (p.category === 'tea_ware' || p.category === 'drippers_kettles' ? 'accessory' : 'equipment')) as any,
+    price: p.price,
+    rating: p.rating,
+    image: p.imageUrl,
+    vendor: p.vendor,
+    url: p.affiliateUrl,
+    badge: p.badge
+  }));
+
+  return {
+    ...bev,
+    affiliateProducts: mappedProducts
+  };
+});
 
 export function getBeverageById(id: string): Beverage | undefined {
   return BEVERAGES_DATA.find(b => b.id === id);

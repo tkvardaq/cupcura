@@ -2,15 +2,16 @@ import React from 'react';
 import { getBeverageMasterBySlug } from '../data/beveragesMaster';
 import { parseMarkdownToHTML } from '../utils/markdownParser';
 import { ArrowLeft, ExternalLink, Sparkles, Heart, ShieldAlert, Thermometer, Scale, Clock, Award, CheckCircle2, Zap } from 'lucide-react';
-import { FEATURED_AFFILIATE_PRODUCTS } from '../data/affiliateProducts';
+import { FEATURED_AFFILIATE_PRODUCTS, ShopProduct } from '../data/affiliateProducts';
 
 interface PageViewProps {
   slug: string;
   onBack: () => void;
   onSelectPage: (slug: string) => void;
+  onSelectProduct?: (product: ShopProduct) => void;
 }
 
-export const PageView: React.FC<PageViewProps> = ({ slug, onBack, onSelectPage }) => {
+export const PageView: React.FC<PageViewProps> = ({ slug, onBack, onSelectPage, onSelectProduct }) => {
   const page = getBeverageMasterBySlug(slug);
 
   if (!page) {
@@ -136,25 +137,41 @@ export const PageView: React.FC<PageViewProps> = ({ slug, onBack, onSelectPage }
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
-              <div className="sm:col-span-4 aspect-[4/3] rounded-2xl overflow-hidden">
+              <div 
+                className="sm:col-span-4 aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => onSelectProduct && onSelectProduct(matchingProduct)}
+              >
                 <img src={matchingProduct.imageUrl} alt={matchingProduct.name} className="w-full h-full object-cover" />
               </div>
 
               <div className="sm:col-span-8 space-y-2">
-                <h3 className="text-xl font-serif font-bold text-white">{matchingProduct.name}</h3>
+                <h3 
+                  className="text-xl font-serif font-bold text-white cursor-pointer hover:text-[#D4A359] transition-colors"
+                  onClick={() => onSelectProduct && onSelectProduct(matchingProduct)}
+                >
+                  {matchingProduct.name}
+                </h3>
                 <p className="text-xs text-[#E8DFD3]">{matchingProduct.description}</p>
 
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
                   <span className="text-xl font-mono font-bold text-[#D4A359]">{matchingProduct.price}</span>
-                  <a
-                    href={matchingProduct.affiliateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#C86D43] hover:bg-[#B55C33] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
-                  >
-                    <span>Check Retailer Price</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onSelectProduct && onSelectProduct(matchingProduct)}
+                      className="bg-[#251E18] hover:bg-[#3D3228] text-white px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border border-[#3D3228]"
+                    >
+                      View Specs
+                    </button>
+                    <a
+                      href={matchingProduct.affiliateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#C86D43] hover:bg-[#B55C33] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md"
+                    >
+                      <span>Check Retailer Price</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

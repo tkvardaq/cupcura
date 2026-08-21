@@ -128,6 +128,7 @@ export function App() {
             slug={activeSlug}
             onBack={handleBackToDirectory}
             onSelectPage={handleSelectPage}
+            onSelectProduct={(prod) => setSelectedProduct(prod)}
           />
         ) : (
           <>
@@ -220,6 +221,7 @@ export function App() {
       <BeverageModal
         beverage={selectedBeverage}
         onClose={() => setSelectedBeverage(null)}
+        onSelectProduct={(prod) => setSelectedProduct(prod)}
       />
 
       {/* Product Detail Modal (with Feature Charts & Specs) */}

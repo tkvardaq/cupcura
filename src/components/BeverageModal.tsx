@@ -3,13 +3,15 @@ import { Beverage } from '../data/beverages';
 import { FlavorRadarChart } from './FlavorRadarChart';
 import { X, ShieldAlert, Heart, Thermometer, Scale, Clock, ExternalLink, Sparkles, ShoppingBag, Share2, Check } from 'lucide-react';
 import { useAccessibleModal } from '../hooks/useAccessibleModal';
+import { FEATURED_AFFILIATE_PRODUCTS, ShopProduct } from '../data/affiliateProducts';
 
 interface BeverageModalProps {
   beverage: Beverage | null;
   onClose: () => void;
+  onSelectProduct?: (product: ShopProduct) => void;
 }
 
-export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose }) => {
+export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose, onSelectProduct }) => {
   const isModalOpen = Boolean(beverage);
   const { modalRef } = useAccessibleModal(isModalOpen, onClose);
   const [copied, setCopied] = useState(false);
@@ -254,26 +256,47 @@ export const BeverageModal: React.FC<BeverageModalProps> = ({ beverage, onClose 
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {beverage.affiliateProducts.map((prod) => (
-                  <div key={prod.id} className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#E8DFD3] flex items-center gap-4 hover:border-[#C86D43] transition-all">
-                    <img src={prod.image} alt={prod.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
-                    <div className="flex-1 space-y-1">
-                      <h4 className="text-xs font-bold text-[#1C1510] line-clamp-1">{prod.title}</h4>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-[#2D5A46]">{prod.price}</span>
-                        <a
-                          href={prod.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-[#191410] hover:bg-[#C86D43] text-white px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
-                        >
-                          <span>Buy</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                {beverage.affiliateProducts.map((prod) => {
+                  const fullProduct = FEATURED_AFFILIATE_PRODUCTS.find(p => p.id === prod.id);
+                  return (
+                    <div 
+                      key={prod.id} 
+                      onClick={() => {
+                        if (fullProduct && onSelectProduct) {
+                          onSelectProduct(fullProduct);
+                        }
+                      }}
+                      className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#E8DFD3] flex items-center gap-4 hover:border-[#C86D43] transition-all cursor-pointer group"
+                    >
+                      <img src={prod.image} alt={prod.title} className="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:opacity-90 transition-opacity" />
+                      <div className="flex-1 space-y-1">
+                        <h4 className="text-xs font-bold text-[#1C1510] line-clamp-1 group-hover:text-[#C86D43] transition-colors">{prod.title}</h4>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-mono font-bold text-[#2D5A46]">{prod.price}</span>
+                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            {fullProduct && (
+                              <button
+                                onClick={() => onSelectProduct && onSelectProduct(fullProduct)}
+                                className="bg-[#FFFFFF] border border-[#E8DFD3] hover:bg-[#FAF6F0] text-[#5C5248] hover:text-[#1C1510] px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors"
+                              >
+                                Specs
+                              </button>
+                            )}
+                            <a
+                              href={prod.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-[#191410] hover:bg-[#C86D43] text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 transition-colors"
+                            >
+                              <span>Buy</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
